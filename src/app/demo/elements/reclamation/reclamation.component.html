@@ -1,0 +1,188 @@
+<div class="row">
+  <div class="col-12 mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="header-icon-wrapper rounded-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M12 6v7"/><path d="M9 9l3-3 3 3"/></svg>
+        </div>
+        <div>
+          <h4 class="mb-1 text-dark fw-bold">Gestion des Réclamations</h4>
+          <p class="text-muted mb-0">Signalements des enseignants sur les élèves</p>
+        </div>
+      </div>
+      <button class="btn btn-primary rounded-pill px-3 py-2 fs-7 fw-semibold" (click)="openAddForm()">
+        <i class="ti ti-plus me-1"></i> Nouvelle réclamation
+      </button>
+    </div>
+  </div>
+
+  <div class="col-12 mb-4" *ngIf="successMessage">
+    <div class="alert alert-success alert-dismissible fade show rounded-3 p-3 mb-0" role="alert">
+      <div class="d-flex gap-2 align-items-center">
+        <i class="ti ti-circle-check fs-4"></i>
+        <div>{{ successMessage }}</div>
+        <button type="button" class="btn-close ms-auto" (click)="successMessage = ''"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <h5 class="fw-bold text-dark mb-1">Liste des signalements</h5>
+        <p class="text-muted mb-0 fs-7">{{ reclamations.length }} signalement(s)</p>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="search-box">
+          <i class="ti ti-search search-icon text-muted"></i>
+          <input type="text" [(ngModel)]="searchTerm" class="form-control form-control-sm ps-5 border rounded-pill" placeholder="Rechercher...">
+        </div>
+        <select class="form-select form-select-sm border rounded-pill px-3" style="width:auto;min-width:130px" [(ngModel)]="selectedStatut">
+          <option value="">Tous les statuts</option>
+          <option value="Ouvert">Ouvert</option>
+          <option value="En cours">En cours</option>
+          <option value="Résolu">Résolu</option>
+          <option value="Fermé">Fermé</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="row g-3">
+      <div class="col-12 col-md-6 col-lg-4" *ngFor="let r of filteredReclamations">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar-initials rounded-circle bg-soft-primary text-primary fw-bold">{{ getInitials(enseignantFullName(r.enseignant)) }}</div>
+                <div>
+                  <div class="fw-semibold text-dark small">{{ enseignantFullName(r.enseignant) }}</div>
+                  <div class="text-muted fs-7">Enseignant</div>
+                </div>
+              </div>
+              <span class="badge rounded-pill fs-7"
+                [class.bg-soft-danger]="r.statut === 'Ouvert'"
+                [class.text-danger]="r.statut === 'Ouvert'"
+                [class.bg-soft-warning]="r.statut === 'En cours'"
+                [class.text-warning]="r.statut === 'En cours'"
+                [class.bg-soft-success]="r.statut === 'Résolu'"
+                [class.text-success]="r.statut === 'Résolu'"
+                [class.bg-soft-secondary]="r.statut === 'Fermé'"
+                [class.text-secondary]="r.statut === 'Fermé'">
+                ● {{ r.statut }}
+              </span>
+            </div>
+
+            <div class="mb-3">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="ti ti-user text-primary fs-5"></i>
+                <span class="text-muted fs-7">Élève: <strong class="text-dark">{{ eleveFullName(r.eleve) }}</strong></span>
+              </div>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="ti ti-calendar text-primary fs-5"></i>
+                <span class="text-muted fs-7">Date: <strong class="text-dark">{{ r.date | date:'dd/MM/yyyy' }}</strong></span>
+              </div>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="ti ti-alert-triangle text-primary fs-5"></i>
+                <span class="text-muted fs-7">Cause: <strong class="text-dark">{{ r.cause }}</strong></span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <i class="ti ti-gavel text-primary fs-5"></i>
+                <span class="text-muted fs-7">Pénalité: <strong class="text-dark">{{ r.penalite }}</strong></span>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 pt-3 border-top">
+              <button class="btn btn-outline-primary btn-sm rounded-circle p-2 border-0" title="Modifier" (click)="openEditForm(r)">
+                <i class="ti ti-edit fs-5"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-sm rounded-circle p-2 border-0" title="Supprimer" (click)="delete(r.id!)">
+                <i class="ti ti-trash fs-5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12" *ngIf="filteredReclamations.length === 0">
+        <div class="text-center py-5 text-muted">
+          <div class="py-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted opacity-50 mb-3"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M12 6v7"/><path d="M9 9l3-3 3 3"/></svg>
+            <p class="mb-0 fw-medium">Aucun signalement trouvé</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #reclamationModal let-modal>
+  <div class="card border-0 shadow-sm booking-form-card">
+    <div class="card-header bg-transparent border-bottom-0 p-0">
+      <ul class="nav nav-tabs nav-fill border-bottom" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link py-3 fw-semibold border-0 active" type="button">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-edit' : 'ti-message-report'"></i>
+            {{ isEditMode ? 'Modifier le signalement' : 'Nouveau signalement' }}
+          </button>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body p-4">
+      <p class="text-muted mb-4 fs-7">{{ isEditMode ? 'Modifiez les informations ci-dessous' : 'Signalez un incident sur un élève' }}</p>
+      <form (ngSubmit)="save()">
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-user me-1 text-primary"></i>Enseignant</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formEnseignant" name="enseignant" required [compareWith]="compareById">
+              <option [ngValue]="null">Sélectionner un enseignant...</option>
+              <option *ngFor="let e of enseignantList" [ngValue]="e">{{ enseignantFullName(e) }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-graduation-cap me-1 text-primary"></i>Élève</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formEleve" name="eleve" required [compareWith]="compareById">
+              <option [ngValue]="null">Sélectionner un élève...</option>
+              <option *ngFor="let e of eleveList" [ngValue]="e">{{ eleveFullName(e) }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-calendar me-1 text-primary"></i>Date</label>
+            <input type="date" class="form-control rounded-3 py-2" [(ngModel)]="formDate" name="date">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-alert-triangle me-1 text-primary"></i>Cause</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formCause" name="cause">
+              <option value="">Sélectionner une cause...</option>
+              <option *ngFor="let c of causes" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-gavel me-1 text-primary"></i>Pénalité</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formPenalite" name="penalite">
+              <option value="">Sélectionner une pénalité...</option>
+              <option *ngFor="let p of penalites" [value]="p">{{ p }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-flag me-1 text-primary"></i>Statut</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formStatut" name="statut">
+              <option value="Ouvert">Ouvert</option>
+              <option value="En cours">En cours</option>
+              <option value="Résolu">Résolu</option>
+              <option value="Fermé">Fermé</option>
+            </select>
+          </div>
+        </div>
+        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fs-7 fw-semibold" (click)="modal.dismiss()">Annuler</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fs-7 fw-semibold shadow-sm" [disabled]="!formEnseignant || !formEleve">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-device-floppy' : 'ti-plus'"></i>
+            {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>

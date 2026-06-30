@@ -1,0 +1,134 @@
+<div class="row">
+  <div class="col-xl-2 col-md-4 col-sm-6" *ngFor="let card of dashboardCards">
+    <div class="card earning-card {{ card.bgClass }} text-white overflow-hidden mb-3">
+      <span class="round {{ card.roundClass }} small"></span>
+      <span class="round {{ card.roundClass }} big"></span>
+      <div class="card-body">
+        <div class="row">
+          <div class="col">
+            <div class="avatar avatar-lg">
+              <i class="text-white {{ card.icon }} f-24"></i>
+            </div>
+          </div>
+          <div class="col-auto">
+            <div class="btn-group" ngbDropdown>
+              <a type="button" class="avatar avatar-xs bg-secondary dropdown-toggle arrow-none" ngbDropdownToggle>
+                <i class="ti ti-dots"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
+                <li><button class="dropdown-item" type="button">View details</button></li>
+                <li><button class="dropdown-item" type="button">Refresh</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <span class="text-white d-block f-34 f-w-500 my-2">
+          {{ card.value }}
+          <i class="{{ card.trendIcon }} opacity-50"></i>
+        </span>
+        <p class="mb-0 opacity-50">{{ card.label }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-md-6">
+    <div class="card earning-card bg-primary-dark text-white overflow-hidden mb-3">
+      <span class="round primary-round small"></span>
+      <span class="round primary-round big"></span>
+      <div class="card-body">
+        <h5 class="text-white mb-3">Monthly Attendance Trend</h5>
+        <app-chart-data-month />
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-md-6">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="mb-3">Performance Highlights</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item px-0" *ngFor="let highlight of performanceHighlights">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="mb-1 fw-semibold">{{ highlight.title }}</p>
+                <small class="text-muted">{{ highlight.detail }}</small>
+              </div>
+              <span class="text-primary fw-bold">{{ highlight.value }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-md-12">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="mb-0">Upcoming Events</h5>
+            <p class="mb-0 text-muted">Next school schedule items</p>
+          </div>
+          <span class="badge bg-success">Today</span>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item px-0" *ngFor="let event of upcomingEvents">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="mb-1 fw-semibold">{{ event.title }}</p>
+                <small class="text-muted">{{ event.description }}</small>
+              </div>
+              <span class="badge bg-light text-dark">{{ event.date }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-8 col-md-12">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="mb-4">Class Performance Overview</h5>
+        <app-bar-chart />
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-md-12">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row mb-3 align-items-center">
+          <div class="col">
+            <h4>Recent Absences</h4>
+          </div>
+          <div class="col-auto"></div>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item px-0" *ngFor="let item of recentAbsences">
+            <div class="row align-items-start">
+              <div class="col">
+                <h5 class="mb-0">{{ item.className }}</h5>
+                <small class="text-muted">{{ item.details }}</small>
+              </div>
+              <div class="col-auto text-end">
+                <h4 class="mb-0">
+                  <span class="ms-2 align-top avatar avatar-xxs {{ item.tag }}">
+                    <i class="{{ item.icon }} {{ item.iconClass }}"></i>
+                  </span>
+                </h4>
+                <small class="{{ item.badgeClass }}">{{ item.badge }}</small>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="text-center mt-3">
+          <a href="javascript:void(0)" class="b-b-primary text-primary f-w-500">
+            View all absences
+            <i class="ti ti-chevron-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

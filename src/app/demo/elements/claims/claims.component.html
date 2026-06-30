@@ -1,0 +1,219 @@
+<div class="rapports-kanban">
+  <!-- Header -->
+  <div class="kanban-header">
+    <div class="kanban-header-left">
+      <div class="header-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h6"/></svg>
+      </div>
+      <div>
+        <h2>Rapports PFE / PFA</h2>
+        <p>Glissez-déposez les rapports pour changer leur statut</p>
+      </div>
+    </div>
+    <div class="kanban-header-actions">
+      <div class="alert-inline" *ngIf="successAlert">
+        <i class="ti ti-circle-check"></i>
+        <span>{{ successAlert }}</span>
+      </div>
+      <button class="btn-new" (click)="openAddForm()">
+        <i class="ti ti-plus"></i> Nouveau rapport
+      </button>
+    </div>
+  </div>
+
+  <!-- Kanban Board -->
+  <div class="kanban-board">
+
+    <!-- Column: Non -->
+    <div class="kanban-column col-non" (drop)="onDrop('Non')" (dragover)="onDragOver($event)">
+      <div class="column-header">
+        <div class="column-title">
+          <span class="dot dot-non"></span>
+          <h5>Non</h5>
+          <span class="count">{{ non.length }}</span>
+        </div>
+      </div>
+      <div class="column-body">
+        <div class="kanban-card" *ngFor="let r of non" draggable="true" (dragstart)="onDragStart(r)" (dblclick)="openDetail(r)">
+          <h6>{{ r.titre }}</h6>
+          <div class="card-eleve"><i class="ti ti-school"></i> {{ eleveName(r) }}</div>
+          <div class="card-jurys" *ngIf="r.jurys?.length"><i class="ti ti-users"></i> {{ jurysList(r) }}</div>
+          <div class="card-meta">
+            <span><i class="ti ti-calendar"></i> {{ (r.date | date:'dd/MM/yyyy') || r.date }}</span>
+            <span class="biblio-badge" [class.biblio-oui]="r.bibliotheque" [class.biblio-non]="!r.bibliotheque">
+              <i class="ti" [ngClass]="r.bibliotheque ? 'ti-library' : 'ti-book-off'"></i>
+              {{ r.bibliotheque ? 'Bibliothèque' : 'Non retourné' }}
+            </span>
+          </div>
+          <div class="card-actions">
+            <button class="act-btn act-edit" (click)="openEditForm(r); $event.stopPropagation()" title="Modifier"><i class="ti ti-edit"></i></button>
+            <button class="act-btn act-check" (click)="changeStatut(r, 'Validé'); $event.stopPropagation()" title="Valider"><i class="ti ti-circle-check"></i></button>
+            <button class="act-btn act-delete" (click)="delete(r.id!); $event.stopPropagation()" title="Supprimer"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+        <div class="empty-column" *ngIf="non.length === 0">
+          <i class="ti ti-inbox"></i>
+          <span>Aucun rapport non validé</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column: Validé -->
+    <div class="kanban-column col-valide" (drop)="onDrop('Validé')" (dragover)="onDragOver($event)">
+      <div class="column-header">
+        <div class="column-title">
+          <span class="dot dot-valide"></span>
+          <h5>Validé</h5>
+          <span class="count">{{ valides.length }}</span>
+        </div>
+      </div>
+      <div class="column-body">
+        <div class="kanban-card" *ngFor="let r of valides" draggable="true" (dragstart)="onDragStart(r)" (dblclick)="openDetail(r)">
+          <h6>{{ r.titre }}</h6>
+          <div class="card-eleve"><i class="ti ti-school"></i> {{ eleveName(r) }}</div>
+          <div class="card-jurys" *ngIf="r.jurys?.length"><i class="ti ti-users"></i> {{ jurysList(r) }}</div>
+          <div class="card-meta">
+            <span><i class="ti ti-calendar"></i> {{ (r.date | date:'dd/MM/yyyy') || r.date }}</span>
+            <span class="biblio-badge" [class.biblio-oui]="r.bibliotheque" [class.biblio-non]="!r.bibliotheque">
+              <i class="ti" [ngClass]="r.bibliotheque ? 'ti-library' : 'ti-book-off'"></i>
+              {{ r.bibliotheque ? 'Bibliothèque' : 'Non retourné' }}
+            </span>
+          </div>
+          <div class="card-actions">
+            <button class="act-btn act-edit" (click)="openEditForm(r); $event.stopPropagation()" title="Modifier"><i class="ti ti-edit"></i></button>
+            <button class="act-btn act-x" (click)="changeStatut(r, 'Non'); $event.stopPropagation()" title="Révoquer"><i class="ti ti-circle-x"></i></button>
+            <button class="act-btn act-delete" (click)="delete(r.id!); $event.stopPropagation()" title="Supprimer"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+        <div class="empty-column" *ngIf="valides.length === 0">
+          <i class="ti ti-inbox"></i>
+          <span>Aucun rapport validé</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal: Détail -->
+<ng-template #detailModal let-modal>
+  <div class="detail-modal" *ngIf="selectedRapport">
+    <div class="detail-header">
+      <div class="detail-icon"><i class="ti ti-file-text"></i></div>
+      <div>
+        <h5>{{ selectedRapport.titre }}</h5>
+        <span class="detail-statut {{ statutClass(selectedRapport.statut) }}">{{ selectedRapport.statut }}</span>
+      </div>
+      <button class="detail-close" (click)="modal.dismiss()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-row">
+        <label>Élève</label>
+        <p><i class="ti ti-school text-primary"></i> {{ eleveName(selectedRapport) }}</p>
+      </div>
+      <div class="detail-row" *ngIf="selectedRapport.jurys?.length">
+        <label>Jurys</label>
+          <div class="jury-chips">
+            <span class="jury-chip" *ngFor="let j of selectedRapport.jurys"><i class="ti ti-user-check"></i> {{ juryName(j) }}</span>
+          </div>
+      </div>
+      <div class="detail-row">
+        <label>Remarque</label>
+        <p class="remarque-text">{{ selectedRapport.remarque || '—' }}</p>
+      </div>
+      <div class="detail-row">
+        <label>Bibliothèque</label>
+        <span class="biblio-badge big" [class.biblio-oui]="selectedRapport.bibliotheque" [class.biblio-non]="!selectedRapport.bibliotheque">
+          <i class="ti" [ngClass]="selectedRapport.bibliotheque ? 'ti-library' : 'ti-book-off'"></i>
+          {{ selectedRapport.bibliotheque ? 'Retourné à la bibliothèque' : 'Non retourné' }}
+        </span>
+      </div>
+      <div class="detail-meta">
+        <div><i class="ti ti-calendar"></i> {{ (selectedRapport.date | date:'dd/MM/yyyy') || selectedRapport.date }}</div>
+        <div><i class="ti ti-hash"></i> #{{ selectedRapport.id }}</div>
+      </div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn-outline" (click)="openEditForm(selectedRapport!); modal.dismiss()"><i class="ti ti-edit"></i> Modifier</button>
+      <button class="btn-danger-outline" (click)="delete(selectedRapport!.id!); modal.dismiss()"><i class="ti ti-trash"></i> Supprimer</button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Modal: Formulaire -->
+<ng-template #formModal let-modal>
+  <div class="card border-0 shadow-sm booking-form-card">
+    <div class="card-header bg-transparent border-bottom-0 p-0">
+      <ul class="nav nav-tabs nav-fill border-bottom" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link py-3 fw-semibold border-0 active" type="button">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-edit' : 'ti-file-plus'"></i>
+            {{ isEditMode ? 'Modifier le rapport' : 'Nouveau rapport PFE/PFA' }}
+          </button>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body p-4">
+      <p class="text-muted mb-4 fs-7">{{ isEditMode ? 'Modifiez les informations ci-dessous' : 'Ajoutez un nouveau rapport de fin d\'études' }}</p>
+      <form (submit)="save(); $event.preventDefault()">
+        <div class="row g-3 mb-4">
+          <div class="col-12">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-file-text me-1 text-primary"></i>Titre du projet</label>
+            <input type="text" class="form-control rounded-3 py-2" [(ngModel)]="formTitre" name="titre" placeholder="Ex: Application de gestion scolaire" required>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-school me-1 text-primary"></i>Élève</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formEleve" name="eleve" (change)="onEleveChange()" [compareWith]="compareEleve">
+              <option [ngValue]="null" disabled selected>Sélectionner un élève...</option>
+              <option *ngFor="let e of eleves" [ngValue]="e">{{ e.prenom }} {{ e.nom }} ({{ e.classe }})</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-calendar me-1 text-primary"></i>Date de soutenance</label>
+            <input type="date" class="form-control rounded-3 py-2" [(ngModel)]="formDate" name="date">
+          </div>
+          <div class="col-12">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-users me-1 text-primary"></i>Jurys</label>
+            <div class="d-flex gap-2">
+              <select class="form-select rounded-3 py-2" #jurySelect (change)="addJury(jurySelect.value); jurySelect.value = ''">
+                <option value="" disabled selected>Ajouter un jury...</option>
+                <option *ngFor="let ens of enseignants" [value]="ens.id" [disabled]="formJurys.includes(ens.id!)">{{ ens.prenom }} {{ ens.nom }} ({{ ens.matieres?.[0]?.nom || '—' }})</option>
+              </select>
+            </div>
+            <div class="jury-chips mt-2" *ngIf="formJurys.length">
+              <span class="jury-chip" *ngFor="let j of formJurys; let i = index">
+                <i class="ti ti-user-check"></i> {{ juryName(j) }}
+                <button type="button" class="chip-remove" (click)="removeJury(i)"><i class="ti ti-x"></i></button>
+              </span>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-notes me-1 text-primary"></i>Remarque</label>
+            <textarea class="form-control rounded-3 py-2" [(ngModel)]="formRemarque" name="remarque" rows="3" placeholder="Remarques du jury..."></textarea>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-flag me-1 text-primary"></i>Statut</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formStatut" name="statut">
+              <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="form-check form-switch mt-4 pt-2">
+              <input class="form-check-input" type="checkbox" role="switch" id="biblioSwitch" [(ngModel)]="formBibliotheque" name="bibliotheque">
+              <label class="form-check-label text-dark fw-semibold fs-7" for="biblioSwitch">
+                <i class="ti ti-library me-1 text-primary"></i> Retourné à la bibliothèque
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fs-7 fw-semibold" (click)="modal.dismiss()">Annuler</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fs-7 fw-semibold submit-btn shadow-sm" [disabled]="!formTitre || !formEleve">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-device-floppy' : 'ti-plus'"></i>
+            {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>

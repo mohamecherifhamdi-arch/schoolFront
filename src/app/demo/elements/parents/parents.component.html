@@ -1,0 +1,224 @@
+<div class="row">
+  <!-- Page Header -->
+  <div class="col-12 mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="header-icon-wrapper rounded-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div>
+          <h4 class="mb-1 text-dark fw-bold">Gestion des Parents</h4>
+          <p class="text-muted mb-0">Consultez et gérez l'ensemble des parents et leurs coordonnées.</p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-primary rounded-pill px-3 py-2 fs-7 fw-semibold" (click)="openAddForm()">
+          <i class="ti ti-plus me-1"></i> Ajouter un parent
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="col-12 mb-4" *ngIf="successAlert">
+    <div class="alert alert-success alert-dismissible fade show rounded-3 p-3 mb-0" role="alert">
+      <div class="d-flex gap-2 align-items-center">
+        <i class="ti ti-circle-check fs-4"></i>
+        <div>{{ successAlert }}</div>
+        <button type="button" class="btn-close ms-auto" (click)="successAlert = ''"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Grid -->
+  <div class="col-12 mb-4">
+    <div class="row g-3">
+      <!-- Total -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm stat-card primary-gradient h-100">
+          <div class="card-body p-4 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-white opacity-75 fs-6 fw-medium d-block mb-1">Total Parents</span>
+              <h3 class="text-white mb-0 fw-bold">{{ parents.length }}</h3>
+            </div>
+            <div class="stat-icon-bg bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="ti ti-users text-white fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Avec email -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm stat-card success-gradient h-100">
+          <div class="card-body p-4 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-white opacity-75 fs-6 fw-medium d-block mb-1">Avec email</span>
+              <h3 class="text-white mb-0 fw-bold">{{ totalAvecEmail }}</h3>
+            </div>
+            <div class="stat-icon-bg bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="ti ti-circle-check text-white fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total élèves -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm stat-card warning-gradient h-100">
+          <div class="card-body p-4 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-white opacity-75 fs-6 fw-medium d-block mb-1">Total élèves</span>
+              <h3 class="text-white mb-0 fw-bold">{{ totalEleves }}</h3>
+            </div>
+            <div class="stat-icon-bg bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="ti ti-users text-white fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Sans email -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm stat-card info-gradient h-100">
+          <div class="card-body p-4 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-white opacity-75 fs-6 fw-medium d-block mb-1">Sans email</span>
+              <h3 class="text-white mb-0 fw-bold">{{ totalSansEmail }}</h3>
+            </div>
+            <div class="stat-icon-bg bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="ti ti-mail-off text-white fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Parents Table -->
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <div>
+            <h5 class="fw-bold text-dark mb-1">Liste des parents</h5>
+            <p class="text-muted mb-0 fs-7">{{ parents.length }} parent(s) enregistré(s)</p>
+          </div>
+          <div class="search-box">
+            <i class="ti ti-search search-icon text-muted"></i>
+            <input type="text" [(ngModel)]="search" class="form-control form-control-sm ps-5 border rounded-pill" placeholder="Rechercher...">
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 text-nowrap">
+            <thead>
+              <tr class="table-header-row text-muted">
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">Parent</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">ID</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">Élève</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">Téléphone</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">Adresse</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="table-body-row" *ngFor="let parent of filteredParents">
+                <td>
+                  <div class="eleve-avatar rounded-circle d-flex align-items-center justify-content-center text-white fw-bold">{{ parent.name.charAt(0) }}{{ parent.name.charAt(1) }}</div>
+                </td>
+                <td><span class="text-muted fs-7">{{ parent.id }}</span></td>
+                <td>
+                  <div class="d-flex flex-wrap gap-1">
+                    <span class="badge bg-soft-primary text-primary px-2.5 py-1 rounded-pill" *ngFor="let e of parent.eleves">{{ e }}</span>
+                    <span class="badge bg-soft-info text-info px-2.5 py-1 rounded-pill">{{ parent.email }}</span>
+                  </div>
+                </td>
+                <td><span class="text-muted fs-7">{{ parent.phone }}</span></td>
+                <td><span class="text-muted fs-7">{{ parent.address }}</span></td>
+                <td class="text-end">
+                  <button class="btn btn-outline-primary btn-sm rounded-circle p-2 border-0 me-1" title="Modifier" (click)="openEditForm(parent)">
+                    <i class="ti ti-edit fs-5"></i>
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm rounded-circle p-2 border-0" title="Supprimer" (click)="deleteParent(parent.id)">
+                    <i class="ti ti-trash fs-5"></i>
+                  </button>
+                </td>
+              </tr>
+              <!-- Empty state -->
+              <tr *ngIf="filteredParents.length === 0">
+                <td colspan="6" class="text-center py-5 text-muted">
+                  <div class="py-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted opacity-50 mb-3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <p class="mb-0 fw-medium">Aucun parent trouvé</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #parentModal let-modal>
+  <div class="card border-0 shadow-sm booking-form-card">
+    <div class="card-header bg-transparent border-bottom-0 p-0">
+      <ul class="nav nav-tabs nav-fill border-bottom" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link py-3 fw-semibold border-0 active" type="button">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-edit' : 'ti-user-plus'"></i>
+            {{ isEditMode ? "Modifier le parent" : 'Nouveau parent' }}
+          </button>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body p-4">
+      <p class="text-muted mb-4 fs-7">{{ isEditMode ? 'Modifiez les informations ci-dessous' : 'Créez un nouveau contact parent' }}</p>
+      <form (submit)="saveParent(); $event.preventDefault()">
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-user me-1 text-primary"></i>Nom complet</label>
+            <input type="text" class="form-control rounded-3 py-2" [(ngModel)]="formName" name="name" placeholder="Ex: Jean Dupont" required>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-phone me-1 text-primary"></i>Téléphone</label>
+            <input type="text" class="form-control rounded-3 py-2" [(ngModel)]="formPhone" name="phone" placeholder="Ex: +123 9988 2200" required>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-map-pin me-1 text-primary"></i>Adresse</label>
+            <input type="text" class="form-control rounded-3 py-2" [(ngModel)]="formAddress" name="address" placeholder="Ex: Paris, France" required>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-mail me-1 text-primary"></i>Email</label>
+            <input type="email" class="form-control rounded-3 py-2" [(ngModel)]="formEmail" name="email" placeholder="ex: parent@email.com">
+          </div>
+          <div class="col-12">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-user me-1 text-primary"></i>Élèves</label>
+            <div class="eleve-select-wrapper">
+              <div class="position-relative mb-2">
+                <i class="ti ti-search position-absolute text-muted" style="top:8px;left:10px;font-size:14px"></i>
+                <input type="text" class="form-control form-control-sm rounded-3 ps-5" [(ngModel)]="eleveSearch" name="eleveSearch" placeholder="Rechercher un élève...">
+              </div>
+              <div class="eleve-checkbox-list rounded-3 border px-2 py-1" *ngIf="filteredEleves.length > 0">
+                <label class="eleve-checkbox-item d-flex align-items-center gap-2 py-1 px-1 rounded" *ngFor="let e of filteredEleves" (click)="toggleEleve(+e.id!)" style="cursor:pointer">
+                  <input type="checkbox" [checked]="isSelected(+e.id!)" (click)="$event.stopPropagation()" (change)="toggleEleve(+e.id!)" class="form-check-input m-0">
+                  <span class="fs-7">{{ e.nom }} {{ e.prenom }} <span class="text-muted">({{ e.email }})</span></span>
+                </label>
+              </div>
+              <div class="text-muted fs-7 mt-1" *ngIf="formEleves.length > 0">
+                <i class="ti ti-users me-1"></i>{{ formEleves.length }} élève(s) sélectionné(s)
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fs-7 fw-semibold" (click)="modal.dismiss()">Annuler</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fs-7 fw-semibold submit-btn shadow-sm" [disabled]="!formName || !formPhone || !formAddress || formEleves.length === 0">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-device-floppy' : 'ti-plus'"></i>
+            {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>

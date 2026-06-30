@@ -1,0 +1,97 @@
+<div class="auth-main">
+  <div class="auth-wrapper v3">
+    <div class="auth-form">
+      <div class="card mt-5">
+        <div class="card-body">
+          <a href="javascript:" class="d-flex justify-content-center mt-3">
+            <img src="assets/images/logo-dark.svg" alt="logo" />
+          </a>
+          <div class="row">
+            <div class="d-flex justify-content-center">
+              <div class="auth-header">
+                <h2 class="text-secondary mt-5"><b>Sign up</b></h2>
+                <p class="fs-4 mt-2">Create your account</p>
+              </div>
+            </div>
+          </div>
+          <form #registerForm="ngForm" (ngSubmit)="onSubmit()">
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                placeholder="Username"
+                name="username"
+                [(ngModel)]="username"
+                required
+              />
+              <label for="username">Username</label>
+            </div>
+            <div class="form-floating mb-3">
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                placeholder="Password"
+                name="password"
+                [(ngModel)]="password"
+                required
+              />
+              <label for="password">Password</label>
+            </div>
+            <div class="form-floating mb-3">
+              <input
+                type="password"
+                class="form-control"
+                id="confirmPassword"
+                placeholder="Confirm Password"
+                name="confirmPassword"
+                [(ngModel)]="confirmPassword"
+                required
+              />
+              <label for="confirmPassword">Confirm Password</label>
+            </div>
+            <div class="form-floating mb-3">
+              <select
+                class="form-select"
+                id="role"
+                name="role"
+                [(ngModel)]="role"
+              >
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+              <label for="role">Role</label>
+            </div>
+            <div class="form-floating mb-3">
+              <select
+                class="form-select"
+                id="status"
+                name="status"
+                [(ngModel)]="status"
+              >
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+                <option value="INVITED">Invited</option>
+              </select>
+              <label for="status">Status</label>
+            </div>
+
+            <div *ngIf="error" class="alert alert-danger py-2">{{ error }}</div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-secondary p-2" [disabled]="loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ loading ? 'Creating account...' : 'Sign Up' }}
+              </button>
+            </div>
+          </form>
+          <hr />
+          <h5 class="d-flex justify-content-center">
+            <a [routerLink]="['/guest/login']">Already have an account?</a>
+          </h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

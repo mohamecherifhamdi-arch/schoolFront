@@ -1,0 +1,93 @@
+.submit-btn {
+  background-color: #4f46e5;
+  border: none;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #4338ca;
+  }
+
+  &:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+  }
+}
+
+::ng-deep .teacher-modal {
+  .modal-content {
+    border: none;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+    animation: teacherFadeSlide 0.3s ease-out;
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    padding: 1.25rem 1.5rem;
+    border: none;
+
+    .modal-title {
+      color: #fff;
+      font-size: 1.1rem;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-close {
+      filter: brightness(0) invert(1);
+      opacity: 0.7;
+      transition: opacity 0.2s, transform 0.2s;
+
+      &:hover {
+        opacity: 1;
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 1.75rem 1.5rem;
+    background: #f8fafc;
+  }
+
+  .form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.35rem;
+  }
+
+  .form-control, .form-select {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0.65rem;
+    font-size: 0.85rem;
+    padding: 0.55rem 0.85rem;
+    background: #fff;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+    }
+
+    &::placeholder {
+      color: #94a3b8;
+      font-size: 0.8rem;
+    }
+  }
+
+  textarea.form-control {
+    resize: vertical;
+  }
+}
+
+@keyframes teacherFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

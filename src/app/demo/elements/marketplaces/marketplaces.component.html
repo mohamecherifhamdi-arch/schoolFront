@@ -1,0 +1,86 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">🏢 Liste des Immeubles Non Loués</h5>
+        <div class="input-group" style="width: 300px;">
+          <span class="input-group-text bg-light border-0"><i class="ti ti-search"></i></span>
+          <input type="search" class="form-control border-0 shadow-none" placeholder="Rechercher..." />
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          
+          <!-- START CARD -->
+          <div class="col-md-6 col-lg-4 show-card" *ngFor="let marketPlace of listMarketPlaces">
+            <div class="card border-0 shadow rounded-4 overflow-hidden h-100">
+              <img [src]="marketPlace.image" class="card-img-top" alt="studio">
+              <div class="card-body">
+                <h5 class="card-title mb-1">{{marketPlace.name}}</h5>
+                <p class="text-muted small mb-2">📍{{marketPlace.address}}</p>
+                <p class="text-primary fw-semibold mb-3">💰 {{marketPlace.price}} DT</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-2">
+                    <img [src]="marketPlace.ownerImage" class="rounded-circle" style="width: 32px; height: 32px;" />
+                    <span class="small fw-medium">{{marketPlace.ownerName}}</span>
+                  </div>
+                  <button class="btn btn-sm btn-outline-primary rounded-pill" (click)="showDetails()"  data-bs-toggle="modal" data-bs-target="#studioModal">Voir</button>
+                </div>
+              </div>
+            </div>
+          </div>
+         
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="studioModal" tabindex="-1" aria-labelledby="studioModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header">
+        <h5 class="modal-title" id="studioModalLabel">Détails du Studio</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <img src="https://www.menzili.tn/upload/photos/2023/05/08/11/27/5261v3doi6.jpg" *ngIf="!modeUpdate" class="img-fluid rounded-3" alt="studio" />
+          
+            <!-- From Uiverse.io by Yaya12085 --> 
+<div class="container"> 
+  <div class="header"> 
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
+      <path d="M7 10V9C7 6.23858 9.23858 4 12 4C14.7614 4 17 6.23858 17 9V10C19.2091 10 21 11.7909 21 14C21 15.4806 20.1956 16.8084 19 17.5M7 10C4.79086 10 3 11.7909 3 14C3 15.4806 3.8044 16.8084 5 17.5M7 10C7.43285 10 7.84965 10.0688 8.24006 10.1959M12 12V21M12 12L15 15M12 12L9 15" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg> <p>Browse File to upload!</p>
+  </div> 
+  <label for="file" class="footer"> 
+    <svg fill="#000000" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M15.331 6H8.5v20h15V14.154h-8.169z"></path><path d="M18.153 6h-.009v5.342H23.5v-.002z"></path></g></svg> 
+    <p>Not selected file</p> 
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M5.16565 10.1534C5.07629 8.99181 5.99473 8 7.15975 8H16.8402C18.0053 8 18.9237 8.9918 18.8344 10.1534L18.142 19.1534C18.0619 20.1954 17.193 21 16.1479 21H7.85206C6.80699 21 5.93811 20.1954 5.85795 19.1534L5.16565 10.1534Z" stroke="#000000" stroke-width="2"></path> <path d="M19.5 5H4.5" stroke="#000000" stroke-width="2" stroke-linecap="round"></path> <path d="M10 3C10 2.44772 10.4477 2 11 2H13C13.5523 2 14 2.44772 14 3V5H10V3Z" stroke="#000000" stroke-width="2"></path> </g></svg>
+  </label> 
+  <input id="file" type="file"> 
+</div>
+
+          </div>
+          <div class="col-md-6">
+            <h5>Studio Moderne à Tunis</h5>
+            <p class="text-muted mb-2">📍 Medina, Tunis</p>
+            <p>Ce studio moderne est bien éclairé, situé au centre-ville, avec toutes les commodités nécessaires.</p>
+            <p class="text-primary fw-bold">Prix: 550 DT / mois</p>
+            <hr />
+            <div class="d-flex align-items-center gap-2">
+              <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle" style="width: 40px; height: 40px;" />
+              <div>
+                <strong>Kaiya George</strong><br />
+                <small class="text-muted">Propriétaire</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary"(click)="modify()">Update</button>
+      </div>
+    </div>
+</div>

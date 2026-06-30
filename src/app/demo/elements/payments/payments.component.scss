@@ -1,0 +1,16 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+.rotated {
+  transform: rotate(180deg);
+  transition: transform 0.2s;
+}
+.bg-soft-success {
+  background-color: #d4edda !important;
+}
+.bg-soft-warning {
+  background-color: #fff3cd !important;
+}
+.bg-soft-danger {
+  background-color: #f8d7da !important;
+}

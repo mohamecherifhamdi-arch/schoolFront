@@ -1,0 +1,220 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h5 class="mb-0">Gestion des Paiements</h5>
+          <small class="text-muted">{{payments.length}} transaction(s) sur {{eleveSummaries.length}} élève(s)</small>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary btn-sm rounded-pill px-3" (click)="openAddForm()">
+            <i class="ti ti-plus me-1"></i>Nouveau paiement
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="successMessage">
+  {{successMessage}}
+  <button type="button" class="btn-close" (click)="successMessage=''"></button>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-3">
+        <h6 class="text-muted mb-1">Total collecté</h6>
+        <h4 class="mb-0 text-success">{{totalCollecte | number}} DT</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-3">
+        <h6 class="text-muted mb-1">Total attendu</h6>
+        <h4 class="mb-0 text-primary">{{totalAttendu | number}} DT</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-3">
+        <h6 class="text-muted mb-1">Solde restant</h6>
+        <h4 class="mb-0 text-warning">{{totalAttendu - totalCollecte | number}} DT</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-3">
+        <h6 class="text-muted mb-1">Élèves</h6>
+        <h4 class="mb-0 text-info">{{eleveSummaries.length}}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    <div class="row g-2 mb-3 align-items-center">
+      <div class="col-md-4">
+        <input type="text" class="form-control form-control-sm" placeholder="Rechercher par élève..." [(ngModel)]="searchTerm" />
+      </div>
+      <div class="col-md-3">
+        <select class="form-select form-select-sm" [(ngModel)]="selectedEleve">
+          <option value="">Tous les élèves</option>
+          <option *ngFor="let e of eleves" [value]="e">{{e}}</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select form-select-sm" [(ngModel)]="selectedMois">
+          <option value="">Tous les mois</option>
+          <option *ngFor="let m of moisList" [value]="m">{{m}}</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select form-select-sm" [(ngModel)]="selectedStatut">
+          <option value="">Tous les statuts</option>
+          <option *ngFor="let s of statuts" [value]="s">{{s}}</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <button class="btn btn-sm btn-outline-secondary w-100" (click)="searchTerm=''; selectedEleve=''; selectedMois=''; selectedStatut=''">
+          <i class="ti ti-rotate"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12" *ngFor="let group of filteredSummaries">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center cursor-pointer" (click)="toggleExpand(group.name)" style="cursor:pointer">
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:40px;height:40px;font-weight:600;font-size:14px">
+                {{getInitials(group.name)}}
+              </div>
+              <div>
+                <h6 class="mb-0">{{group.name}}</h6>
+                <small class="text-muted">{{group.payments.length}} paiement(s)</small>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-4">
+              <div class="text-end">
+                <small class="text-muted d-block">Attendu</small>
+                <strong class="text-primary">{{group.totalAttendu | number}} DT</strong>
+              </div>
+              <div class="text-end">
+                <small class="text-muted d-block">Payé</small>
+                <strong class="text-success">{{group.totalPaye | number}} DT</strong>
+              </div>
+              <div class="text-end">
+                <small class="text-muted d-block">Reste</small>
+                <strong [class.text-danger]="group.reste > 0" [class.text-success]="group.reste <= 0">{{group.reste | number}} DT</strong>
+              </div>
+              <i class="ti ti-chevron-down" [class.rotated]="expandedEleve === group.name"></i>
+            </div>
+          </div>
+          <div class="card-body p-0" *ngIf="expandedEleve === group.name">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Mois</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Attendu</th>
+                    <th>Payé</th>
+                    <th>Statut</th>
+                    <th>Remarque</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let p of group.payments">
+                    <td><strong>{{p.mois}}</strong></td>
+                    <td>{{p.datePaiement}}</td>
+                    <td>{{p.typePaiement}}</td>
+                    <td>{{p.montantAttendu | number}} DT</td>
+                    <td>{{p.montantPaye | number}} DT</td>
+                    <td><span class="badge rounded-pill {{getStatutClass(p.statut)}}">{{p.statut}}</span></td>
+                    <td><small class="text-muted">{{p.remarque || '-'}}</small></td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-primary me-1" (click)="openEditForm(p)">
+                        <i class="ti ti-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="delete(p.id!)">
+                        <i class="ti ti-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 text-center py-4 text-muted" *ngIf="filteredSummaries.length === 0">
+        Aucun paiement trouvé.
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #paymentModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">{{isEditMode ? 'Modifier' : 'Ajouter'}} un paiement</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Élève</label>
+        <select class="form-select" [(ngModel)]="formEleve" name="eleve" [compareWith]="compareById">
+          <option [ngValue]="null">Sélectionner...</option>
+          <option *ngFor="let e of eleveList" [ngValue]="e">{{e.prenom}} {{e.nom}}</option>
+        </select>
+      </div>
+      <div class="col-6">
+        <label class="form-label">Mois</label>
+        <select class="form-select" [(ngModel)]="formMois">
+          <option value="">Sélectionner...</option>
+          <option *ngFor="let m of moisList" [value]="m">{{m}}</option>
+        </select>
+      </div>
+      <div class="col-6">
+        <label class="form-label">Date de paiement</label>
+        <input type="date" class="form-control" [(ngModel)]="formDatePaiement" />
+      </div>
+      <div class="col-6">
+        <label class="form-label">Montant attendu (DT)</label>
+        <input type="number" class="form-control" [(ngModel)]="formMontantAttendu" min="0" />
+      </div>
+      <div class="col-6">
+        <label class="form-label">Montant payé (DT)</label>
+        <input type="number" class="form-control" [(ngModel)]="formMontantPaye" min="0" />
+      </div>
+      <div class="col-6">
+        <label class="form-label">Type de paiement</label>
+        <select class="form-select" [(ngModel)]="formTypePaiement">
+          <option *ngFor="let t of typesPaiement" [value]="t">{{t}}</option>
+        </select>
+      </div>
+      <div class="col-6">
+        <label class="form-label">Statut</label>
+        <select class="form-select" [(ngModel)]="formStatut">
+          <option *ngFor="let s of statuts" [value]="s">{{s}}</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Remarque</label>
+        <textarea class="form-control" rows="2" [(ngModel)]="formRemarque"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss()">Annuler</button>
+    <button type="button" class="btn btn-primary" (click)="save()">{{isEditMode ? 'Modifier' : 'Ajouter'}}</button>
+  </div>
+</ng-template>

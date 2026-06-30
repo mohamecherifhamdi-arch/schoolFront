@@ -1,0 +1,159 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0">Liste des enseignants</h5>
+          <small class="text-muted">Gérez vos enseignants, leurs matières et leur disponibilité.</small>
+        </div>
+        <div class="d-flex gap-2">
+          <div class="input-group" style="width: 260px;">
+            <span class="input-group-text bg-light border-0"><i class="ti ti-search"></i></span>
+            <input type="search" class="form-control border-0 shadow-none" placeholder="Rechercher..." />
+          </div>
+          <button class="btn btn-primary btn-sm d-flex align-items-center gap-1" (click)="openAddForm()">
+            <i class="ti ti-plus"></i> Ajouter
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Success Alert -->
+        <div class="alert alert-success rounded-3 p-3 mb-4 d-flex align-items-center gap-2" role="alert" *ngIf="successAlert">
+          <i class="ti ti-circle-check fs-4"></i>
+          <div>{{ successAlert }}</div>
+        </div>
+
+        <!-- Modal Form Add/Edit Teacher -->
+        <ng-template #teacherFormModal let-modal>
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">{{ isEditMode ? 'Modifier l\'enseignant' : 'Ajouter un enseignant' }}</h5>
+            <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted mb-4 fs-7">Remplissez les détails ci-dessous pour {{ isEditMode ? 'mettre à jour' : 'ajouter' }} l'enseignant.</p>
+            <form (submit)="saveTeacher(); $event.preventDefault()">
+              <div class="row g-3 mb-4">
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold">Nom complet</label>
+                  <input type="text" class="form-control" [(ngModel)]="formName" name="name" placeholder="Ex: Sarra Ben Youssef" required>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold">Matière</label>
+                  <input type="text" class="form-control" [(ngModel)]="formSubject" name="subject" placeholder="Ex: Mathématiques" required>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold">Email</label>
+                  <input type="email" class="form-control" [(ngModel)]="formEmail" name="email" placeholder="email@ecole.tn" required>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold">Téléphone</label>
+                  <input type="text" class="form-control" [(ngModel)]="formPhone" name="phone" placeholder="+216 98 123 456">
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold">Localisation</label>
+                  <input type="text" class="form-control" [(ngModel)]="formLocation" name="location" placeholder="Ex: Tunis">
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold">Statut</label>
+                  <select class="form-select" [(ngModel)]="formStatus" name="status">
+                    <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold">Expérience</label>
+                  <input type="text" class="form-control" [(ngModel)]="formExperience" name="experience" placeholder="Ex: 8 ans d'expérience">
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold">Classes</label>
+                  <input type="text" class="form-control" [(ngModel)]="formClasses" name="classes" placeholder="Ex: 10B, 11A">
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Planning</label>
+                  <input type="text" class="form-control" [(ngModel)]="formSchedule" name="schedule" placeholder="Ex: Lundi 08:00 - 10:00, Mercredi 10:00 - 12:00">
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Bio</label>
+                  <textarea class="form-control" [(ngModel)]="formBio" name="bio" rows="2" placeholder="Courte description..."></textarea>
+                </div>
+              </div>
+              <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-light rounded-pill px-4" (click)="modal.dismiss()">Annuler</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 submit-btn" [disabled]="!formName || !formSubject || !formEmail">
+                  {{ isEditMode ? 'Enregistrer les modifications' : 'Ajouter l\'enseignant' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </ng-template>
+
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-4" *ngFor="let teacher of teachers; let i = index">
+            <div class="card border-0 shadow rounded-4 overflow-hidden h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                  <img [src]="teacher.avatar" class="rounded-circle" style="width: 56px; height: 56px; object-fit: cover;" alt="{{ teacher.name }}" />
+                  <div class="ms-3">
+                    <h5 class="mb-1">{{ teacher.name }}</h5>
+                    <p class="text-muted mb-0">{{ teacher.subject }}</p>
+                  </div>
+                </div>
+                <p class="mb-2 text-muted"><i class="ti ti-mail me-2"></i>{{ teacher.email }}</p>
+                <p class="mb-2 text-muted"><i class="ti ti-phone me-2"></i>{{ teacher.phone }}</p>
+                <p class="mb-2 text-muted"><i class="ti ti-map-pin me-2"></i>{{ teacher.location }}</p>
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                  <span class="badge" [ngClass]="{
+                    'bg-success': teacher.status === 'Active',
+                    'bg-warning': teacher.status === 'En congé',
+                    'bg-secondary': teacher.status === 'Inactive'
+                  }">{{ teacher.status }}</span>
+                  <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-outline-primary btn-sm" (click)="viewTeacher(teacher)">Voir</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm p-1" (click)="openEditForm(i, teacher)" title="Modifier">
+                      <i class="ti ti-edit"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm p-1" (click)="deleteTeacher(i)" title="Supprimer">
+                      <i class="ti ti-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="teacherModal" tabindex="-1" aria-labelledby="teacherModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title" id="teacherModalLabel">Détails de l'enseignant</h5>
+          <p class="mb-0 text-muted">{{ selectedTeacher?.name }} — {{ selectedTeacher?.subject }}</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer" (click)="closeTeacher()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-4 d-flex align-items-center justify-content-center">
+            <img [src]="selectedTeacher?.avatar" class="rounded-circle" style="width: 140px; height: 140px; object-fit: cover;" alt="{{ selectedTeacher?.name }}" />
+          </div>
+          <div class="col-md-8">
+            <p><strong>Email :</strong> {{ selectedTeacher?.email }}</p>
+            <p><strong>Téléphone :</strong> {{ selectedTeacher?.phone }}</p>
+            <p><strong>Localisation :</strong> {{ selectedTeacher?.location }}</p>
+            <p><strong>Expérience :</strong> {{ selectedTeacher?.experience }}</p>
+            <p><strong>Classes :</strong> {{ selectedTeacher?.classes }}</p>
+            <p><strong>Planning :</strong> {{ selectedTeacher?.schedule }}</p>
+            <p><strong>Bio :</strong> {{ selectedTeacher?.bio }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeTeacher()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

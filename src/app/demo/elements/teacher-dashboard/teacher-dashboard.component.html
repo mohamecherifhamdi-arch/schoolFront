@@ -1,0 +1,279 @@
+<div class="teacher-dashboard-page">
+  <div class="header-section">
+    <div class="d-flex align-items-center gap-3">
+      <div class="page-icon"><i class="ti ti-dashboard"></i></div>
+      <div>
+        <h4 class="mb-0 fw-bold">Dashboard Professeur</h4>
+        <small class="text-muted">Vue d'ensemble de votre activité pédagogique</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-section">
+    <div class="search-wrapper">
+      <div class="search-box">
+        <i class="ti ti-search"></i>
+        <input type="text" class="form-control" placeholder="Entrez votre nom (ex: Dupont Jean)..." [(ngModel)]="teacherName" (input)="onSearchInput()" (keydown)="onSearchKeydown($event)" (focus)="onSearchInput()" (blur)="hideSuggestions()" />
+      </div>
+      <div class="suggestions-dropdown" *ngIf="showSuggestions">
+        <div class="suggestion-item" *ngFor="let t of suggestions; let i = index" [class.active]="i === selectedIndex" (mousedown)="selectSuggestion(t)">
+          <div class="suggestion-name"><i class="ti ti-user"></i> {{ t.fullName }}</div>
+          <div class="suggestion-matiere">{{ t.matiere }}</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-search" (click)="search()" [disabled]="!teacherName.trim() || loading">
+      <i class="ti ti-arrow-right"></i> Charger
+    </button>
+  </div>
+
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Chargement du tableau de bord...</span>
+  </div>
+
+  <div class="alert-modern alert-error" *ngIf="error">
+    <div class="alert-icon"><i class="ti ti-alert-circle"></i></div>
+    {{ error }}
+  </div>
+
+  <ng-container *ngIf="data && !loading">
+    <div class="teacher-banner">
+      <div class="teacher-avatar"><i class="ti ti-user"></i></div>
+      <div class="teacher-details">
+        <h5>{{ data.teacherInfo.prenom }} {{ data.teacherInfo.nom }}</h5>
+        <div class="teacher-meta">
+          <span><i class="ti ti-book-2"></i> {{ data.teacherInfo.matiere || 'Non renseignée' }}</span>
+          <span><i class="ti ti-mail"></i> {{ data.teacherInfo.email || 'Non renseigné' }}</span>
+          <span><i class="ti ti-phone"></i> {{ data.teacherInfo.telephone || 'Non renseigné' }}</span>
+        </div>
+      </div>
+      <div class="teacher-status" [class.active]="data.teacherInfo.statut === 'Actif'">
+        {{ data.teacherInfo.statut || 'Inconnu' }}
+      </div>
+    </div>
+
+    <div class="alertes-section" *ngIf="data.alertes.length > 0">
+      <div class="alerte-item" *ngFor="let a of data.alertes" [class.alerte-danger]="a.type === 'danger'" [class.alerte-warning]="a.type === 'warning'" [class.alerte-info]="a.type === 'info'">
+        <div class="alerte-icon"><i [class]="getAlertIcon(a.type)"></i></div>
+        <div class="alerte-content">
+          <span class="alerte-message">{{ a.message }}</span>
+          <span class="alerte-entite">{{ a.entite }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card s-cours">
+        <div class="stat-info">
+          <span class="stat-value">{{ data.stats.totalCours }}</span>
+          <span class="stat-label">Cours cette semaine</span>
+          <span class="stat-trend" [class.up]="data.stats.totalCours >= data.stats.coursSemaineDerniere" [class.down]="data.stats.totalCours < data.stats.coursSemaineDerniere">
+            <i [class]="data.stats.totalCours >= data.stats.coursSemaineDerniere ? 'ti ti-trending-up' : 'ti ti-trending-down'"></i>
+            Sem. dernière : {{ data.stats.coursSemaineDerniere }}
+          </span>
+        </div>
+        <div class="stat-icon"><i class="ti ti-calendar-stats"></i></div>
+      </div>
+      <div class="stat-card s-heures">
+        <div class="stat-info">
+          <span class="stat-value">{{ data.stats.heuresTotales }}h</span>
+          <span class="stat-label">Heures cette semaine</span>
+        </div>
+        <div class="stat-icon"><i class="ti ti-clock"></i></div>
+      </div>
+      <div class="stat-card s-eleves">
+        <div class="stat-info">
+          <span class="stat-value">{{ data.stats.totalEleves }}</span>
+          <span class="stat-label">Élèves concernés</span>
+        </div>
+        <div class="stat-icon"><i class="ti ti-users"></i></div>
+      </div>
+      <div class="stat-card s-notes">
+        <div class="stat-info">
+          <span class="stat-value">{{ data.stats.moyenneGeneraleNotes }}</span>
+          <span class="stat-label">Moyenne générale des notes</span>
+          <span class="stat-detail">{{ data.stats.totalNotes }} notes</span>
+        </div>
+        <div class="stat-icon"><i class="ti ti-award"></i></div>
+      </div>
+      <div class="stat-card s-presence">
+        <div class="stat-info">
+          <span class="stat-value">{{ data.stats.tauxPresence }}%</span>
+          <span class="stat-label">Taux de présence</span>
+          <span class="stat-detail" *ngIf="data.stats.absencesNonJustifiees > 0">{{ data.stats.absencesNonJustifiees }} non justifiées</span>
+        </div>
+        <div class="stat-icon"><i class="ti ti-percentage"></i></div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="dash-card planning-card">
+        <div class="dash-card-header">
+          <i class="ti ti-calendar-event"></i>
+          <h6>Planning de la semaine</h6>
+          <small class="text-muted ms-auto">{{ data.stats.heuresTotales }}h de cours</small>
+        </div>
+        <div class="dash-card-body">
+          <div class="empty-state" *ngIf="data.planningSemaine.length === 0">
+            <i class="ti ti-calendar-off"></i>
+            <span>Aucun cours cette semaine</span>
+          </div>
+          <div class="planning-week" *ngIf="data.planningSemaine.length > 0">
+            <div class="day-column" *ngFor="let jour of data.planningSemaine" [class.today]="hasCoursToday(jour)">
+              <div class="day-header">
+                <span class="day-name">{{ jour.jour }}</span>
+                <span class="day-date">{{ jour.date | date:'dd/MM' }}</span>
+                <span class="day-count">{{ jour.cours.length }} cours</span>
+              </div>
+              <div class="day-cours">
+                <div class="cours-item" *ngFor="let c of jour.cours">
+                  <div class="cours-time">{{ c.heureDebut }}</div>
+                  <div class="cours-info">
+                    <span class="cours-matiere">{{ c.matiere }}</span>
+                    <span class="cours-classe"><i class="ti ti-school"></i> {{ c.classe }}</span>
+                    <span class="cours-salle"><i class="ti ti-building"></i> {{ c.salle }}</span>
+                  </div>
+                  <div class="cours-duree">{{ c.heureDebut }}-{{ c.heureFin }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <i class="ti ti-chart-bar"></i>
+          <h6>Statistiques par classe</h6>
+        </div>
+        <div class="dash-card-body">
+          <div class="empty-state" *ngIf="data.statsParClasse.length === 0">
+            <i class="ti ti-chart-bar-off"></i>
+            <span>Aucune donnée par classe</span>
+          </div>
+          <table class="table classe-stats-table" *ngIf="data.statsParClasse.length > 0">
+            <thead>
+              <tr>
+                <th>Classe</th>
+                <th class="text-center">Cours</th>
+                <th class="text-center">Absences</th>
+                <th class="text-center">Taux abs.</th>
+                <th class="text-center">Moy. notes</th>
+                <th class="text-center">Élèves</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of data.statsParClasse">
+                <td class="fw-semibold">{{ s.classe }}</td>
+                <td class="text-center">{{ s.totalCours }}</td>
+                <td class="text-center">
+                  <span class="badge-abs" [class.high]="s.absences > 3">{{ s.absences }}</span>
+                </td>
+                <td class="text-center">
+                  <span [class.text-danger]="s.tauxAbsence > 15" [class.text-warning]="s.tauxAbsence > 5 && s.tauxAbsence <= 15">
+                    {{ s.tauxAbsence }}%
+                  </span>
+                </td>
+                <td class="text-center fw-bold" [class.good]="s.moyenneNotes >= 12" [class.avg]="s.moyenneNotes >= 10 && s.moyenneNotes < 12" [class.bad]="s.moyenneNotes > 0 && s.moyenneNotes < 10">
+                  {{ s.moyenneNotes > 0 ? s.moyenneNotes : '-' }}
+                </td>
+                <td class="text-center">{{ s.effectif }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <i class="ti ti-alert-triangle"></i>
+          <h6>Dernières absences</h6>
+          <span class="ms-auto badge-count" [class.danger]="data.stats.absencesNonJustifiees > 0">{{ data.stats.totalAbsences }}</span>
+        </div>
+        <div class="dash-card-body">
+          <div class="empty-state" *ngIf="data.absences.length === 0">
+            <i class="ti ti-check"></i>
+            <span>Aucune absence enregistrée</span>
+          </div>
+          <div class="absence-list" *ngIf="data.absences.length > 0">
+            <div class="absence-item" *ngFor="let a of data.absences">
+              <div class="absence-date">{{ a.date }}</div>
+              <div class="item-info">
+                <span class="item-title">{{ a.classe }} - {{ a.seance }}</span>
+                <span class="item-sub" [class.justifie]="a.justifie" [class.non-justifie]="!a.justifie">
+                  <i [class]="a.justifie ? 'ti ti-check' : 'ti ti-x'"></i>
+                  {{ a.justifie ? 'Justifiée' : 'Non justifiée' }}
+                  <span *ngIf="a.motif"> - {{ a.motif }}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <i class="ti ti-award"></i>
+          <h6>Notes récentes</h6>
+          <small class="text-muted ms-auto">{{ data.stats.totalNotes }} notes</small>
+        </div>
+        <div class="dash-card-body">
+          <div class="empty-state" *ngIf="data.notesRecent.length === 0">
+            <i class="ti ti-file-off"></i>
+            <span>Aucune note disponible</span>
+          </div>
+          <table class="table notes-table" *ngIf="data.notesRecent.length > 0">
+            <thead>
+              <tr>
+                <th>Élève</th>
+                <th>Classe</th>
+                <th class="text-center">Note</th>
+                <th>Type</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let n of data.notesRecent">
+                <td>{{ n.eleve }}</td>
+                <td>{{ n.classe }}</td>
+                <td class="text-center fw-bold note-value" [class.good]="n.valeur >= 12" [class.avg]="n.valeur >= 10 && n.valeur < 12" [class.bad]="n.valeur < 10">{{ n.valeur }}</td>
+                <td>{{ n.type }}</td>
+                <td>{{ n.date }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <i class="ti ti-building"></i>
+          <h6>Mes réservations de salles</h6>
+          <span class="ms-auto badge-count">{{ data.stats.totalReservations }}</span>
+        </div>
+        <div class="dash-card-body">
+          <div class="empty-state" *ngIf="data.reservations.length === 0">
+            <i class="ti ti-building-off"></i>
+            <span>Aucune réservation</span>
+          </div>
+          <div class="reservation-list" *ngIf="data.reservations.length > 0">
+            <div class="reservation-item" *ngFor="let r of data.reservations">
+              <div class="res-date">{{ r.date }}</div>
+              <div class="item-info">
+                <span class="item-title"><i class="ti ti-building"></i> {{ r.salleNom }}</span>
+                <span class="item-sub">{{ r.seance }} - {{ r.classe }} - {{ r.matiere }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="empty-state initial" *ngIf="!data && !loading && !error">
+    <i class="ti ti-search"></i>
+    <h6>Recherchez un professeur</h6>
+    <p>Entrez le nom d'un enseignant pour voir son tableau de bord complet</p>
+  </div>
+</div>

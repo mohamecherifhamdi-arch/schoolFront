@@ -1,0 +1,227 @@
+<div class="row">
+  <div class="col-12 mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="header-icon-wrapper rounded-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M12 6v7"/><path d="M9 9l3-3 3 3"/></svg>
+        </div>
+        <div>
+          <h4 class="mb-1 text-dark fw-bold">Résultats d'examens</h4>
+          <p class="text-muted mb-0">Consultez les notes des élèves par matière et par classe</p>
+        </div>
+      </div>
+      <button class="btn btn-primary rounded-pill px-3 py-2 fs-7 fw-semibold" (click)="openAddForm()">
+        <i class="ti ti-plus me-1"></i> Ajouter une note
+      </button>
+    </div>
+  </div>
+
+  <div class="col-12 mb-4" *ngIf="successMessage">
+    <div class="alert alert-success alert-dismissible fade show rounded-3 p-3 mb-0" role="alert">
+      <div class="d-flex gap-2 align-items-center">
+        <i class="ti ti-circle-check fs-4"></i>
+        <div>{{ successMessage }}</div>
+        <button type="button" class="btn-close ms-auto" (click)="successMessage = ''"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 mb-4">
+    <div class="row g-3">
+      <div class="col-12 col-md-3">
+        <div class="card border-0 shadow-sm bg-soft-primary border-start border-4 border-primary h-100">
+          <div class="card-body p-3">
+            <div class="fs-2 fw-bold text-primary">{{ notes.length }}</div>
+            <div class="text-muted fs-7">Notes totales</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card border-0 shadow-sm bg-soft-success border-start border-4 border-success h-100">
+          <div class="card-body p-3">
+            <div class="fs-2 fw-bold text-success">{{ moyenne }}</div>
+            <div class="text-muted fs-7">Moyenne générale</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card border-0 shadow-sm bg-soft-warning border-start border-4 border-warning h-100">
+          <div class="card-body p-3">
+            <div class="fs-2 fw-bold text-warning">{{ elevesIdentity.length }}</div>
+            <div class="text-muted fs-7">Élèves</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card border-0 shadow-sm bg-soft-info border-start border-4 border-info h-100">
+          <div class="card-body p-3">
+            <div class="fs-2 fw-bold text-info">{{ matieres.length }}</div>
+            <div class="text-muted fs-7">Matières</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <h5 class="fw-bold text-dark mb-1">Liste des notes</h5>
+        <p class="text-muted mb-0 fs-7">{{ filteredNotes.length }} résultat(s)</p>
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="search-box">
+          <i class="ti ti-search search-icon text-muted"></i>
+          <input type="text" [(ngModel)]="searchTerm" class="form-control form-control-sm ps-5 border rounded-pill" placeholder="Rechercher...">
+        </div>
+        <select class="form-select form-select-sm border rounded-pill px-3" style="width:auto;min-width:140px" [(ngModel)]="selectedEleve">
+          <option value="">Tous élèves</option>
+          <option *ngFor="let e of elevesIdentity" [value]="e">{{ e }}</option>
+        </select>
+        <select class="form-select form-select-sm border rounded-pill px-3" style="width:auto;min-width:140px" [(ngModel)]="selectedMatiere">
+          <option value="">Toutes matières</option>
+          <option *ngFor="let m of matieres" [value]="m">{{ m }}</option>
+        </select>
+        <select class="form-select form-select-sm border rounded-pill px-3" style="width:auto;min-width:130px" [(ngModel)]="selectedClasse">
+          <option value="">Toutes classes</option>
+          <option *ngFor="let c of classes" [value]="c">{{ c }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="ps-4 py-3 fs-7 fw-bold text-uppercase text-muted">Élève</th>
+              <th class="py-3 fs-7 fw-bold text-uppercase text-muted">Matière</th>
+              <th class="py-3 fs-7 fw-bold text-uppercase text-muted">Classe</th>
+              <th class="py-3 fs-7 fw-bold text-uppercase text-muted text-center">Note</th>
+              <th class="py-3 fs-7 fw-bold text-uppercase text-muted">Type</th>
+              <th class="py-3 fs-7 fw-bold text-uppercase text-muted">Date</th>
+              <th class="py-3 fs-7 fw-bold text-uppercase text-muted">Statut</th>
+              <th class="pe-4 py-3 text-end fs-7 fw-bold text-uppercase text-muted">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let n of filteredNotes" class="border-bottom">
+              <td class="ps-4 py-3">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar-initials rounded-circle bg-soft-primary text-primary fw-bold">{{ getInitials(n.eleve) }}</div>
+                  <span class="fw-semibold text-dark">{{ eleveName(n.eleve) }}</span>
+                </div>
+              </td>
+              <td class="py-3">{{ n.matiere?.nom }}</td>
+              <td class="py-3">{{ classeName(n.classe) }}</td>
+              <td class="py-3 text-center fs-5" [class]="noteColor(n.valeur)">{{ n.valeur }}<span class="fs-7 text-muted fw-normal">/20</span></td>
+              <td class="py-3"><span class="badge bg-light text-dark rounded-pill px-3 py-1 fs-7">{{ n.type }}</span></td>
+              <td class="py-3 text-muted fs-7">{{ n.date | date:'dd/MM/yyyy' }}</td>
+              <td class="py-3">
+                <span class="badge rounded-pill fs-7"
+                  [class.bg-soft-success]="n.statut === 'Publiée'"
+                  [class.text-success]="n.statut === 'Publiée'"
+                  [class.bg-soft-warning]="n.statut === 'En attente'"
+                  [class.text-warning]="n.statut === 'En attente'"
+                  [class.bg-soft-secondary]="n.statut === 'Annulée'"
+                  [class.text-secondary]="n.statut === 'Annulée'">
+                  ● {{ n.statut }}
+                </span>
+              </td>
+              <td class="pe-4 py-3 text-end">
+                <button class="btn btn-outline-primary btn-sm rounded-circle p-2 border-0 me-1" title="Modifier" (click)="openEditForm(n)">
+                  <i class="ti ti-edit fs-5"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm rounded-circle p-2 border-0" title="Supprimer" (click)="delete(n.id!)">
+                  <i class="ti ti-trash fs-5"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredNotes.length === 0">
+              <td colspan="8" class="text-center py-4 text-muted">
+                <i class="ti ti-inbox d-block" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                Aucune note trouvée
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #noteModal let-modal>
+  <div class="card border-0 shadow-sm booking-form-card">
+    <div class="card-header bg-transparent border-bottom-0 p-0">
+      <ul class="nav nav-tabs nav-fill border-bottom" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link py-3 fw-semibold border-0 active" type="button">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-edit' : 'ti-award'"></i>
+            {{ isEditMode ? 'Modifier la note' : 'Nouvelle note' }}
+          </button>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body p-4">
+      <p class="text-muted mb-4 fs-7">{{ isEditMode ? 'Modifiez les informations ci-dessous' : 'Ajoutez une nouvelle note' }}</p>
+      <form (submit)="save(); $event.preventDefault()">
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-user me-1 text-primary"></i>Élève</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formEleve" name="eleve" required [compareWith]="compareById">
+              <option [ngValue]="null">Sélectionner un élève...</option>
+              <option *ngFor="let e of eleveList" [ngValue]="e">{{ e.prenom }} {{ e.nom }} ({{ e.email }})</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-book me-1 text-primary"></i>Matière</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formMatiere" name="matiere" required>
+              <option value="">Sélectionner une matière...</option>
+              <option *ngFor="let m of matieres" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-school me-1 text-primary"></i>Classe</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formClasse" name="classe" [compareWith]="compareById">
+              <option [ngValue]="null">Sélectionner une classe...</option>
+              <option *ngFor="let c of classeList" [ngValue]="c">{{ c.nom }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-tag me-1 text-primary"></i>Type</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formType" name="type">
+              <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-score me-1 text-primary"></i>Note</label>
+            <input type="number" class="form-control rounded-3 py-2" [(ngModel)]="formValeur" name="valeur" min="0" max="20" step="0.5" required placeholder="0-20">
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-numbers me-1 text-primary"></i>Coefficient</label>
+            <input type="number" class="form-control rounded-3 py-2" [(ngModel)]="formCoefficient" name="coefficient" min="1" max="10">
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-calendar me-1 text-primary"></i>Date</label>
+            <input type="date" class="form-control rounded-3 py-2" [(ngModel)]="formDate" name="date">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-flag me-1 text-primary"></i>Statut</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formStatut" name="statut">
+              <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fs-7 fw-semibold" (click)="modal.dismiss()">Annuler</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fs-7 fw-semibold shadow-sm" [disabled]="!formEleve || !formMatiere || formValeur === null">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-device-floppy' : 'ti-plus'"></i>
+            {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,254 @@
+<div class="row">
+  <!-- Page Header -->
+  <div class="col-12 mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="header-icon-wrapper rounded-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <h4 class="mb-1 text-dark fw-bold">Administrateurs</h4>
+          <p class="text-muted mb-0">Gérez les accès, les rôles et les invitations</p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge rounded-pill bg-soft-primary text-primary px-3 py-2 fs-7" *ngIf="isSuperAdmin">
+          <i class="ti ti-crown me-1"></i>Super Admin
+        </span>
+        <button class="btn btn-primary rounded-pill px-3 py-2 fs-7 fw-semibold" (click)="openAddForm()">
+          <i class="ti ti-plus me-1"></i> Nouvel admin
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="col-12 mb-4" *ngIf="successAlert">
+    <div class="alert alert-success alert-dismissible fade show rounded-3 p-3 mb-0" role="alert">
+      <div class="d-flex gap-2 align-items-center">
+        <i class="ti ti-circle-check fs-4"></i>
+        <div>{{ successAlert }}</div>
+        <button type="button" class="btn-close ms-auto" (click)="successAlert = ''"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Grid -->
+  <div class="col-12 mb-4">
+    <div class="row g-3">
+      <!-- Total -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm stat-card primary-gradient h-100">
+          <div class="card-body p-4 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-white opacity-75 fs-6 fw-medium d-block mb-1">Total</span>
+              <h3 class="text-white mb-0 fw-bold">{{ admins.length }}</h3>
+            </div>
+            <div class="stat-icon-bg bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="ti ti-users text-white fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Actifs -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm stat-card success-gradient h-100">
+          <div class="card-body p-4 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-white opacity-75 fs-6 fw-medium d-block mb-1">Actifs</span>
+              <h3 class="text-white mb-0 fw-bold">{{ countByStatus('Actif') }}</h3>
+            </div>
+            <div class="stat-icon-bg bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="ti ti-circle-check text-white fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Inactifs -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm stat-card warning-gradient h-100">
+          <div class="card-body p-4 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-white opacity-75 fs-6 fw-medium d-block mb-1">Inactifs</span>
+              <h3 class="text-white mb-0 fw-bold">{{ countByStatus('Inactif') }}</h3>
+            </div>
+            <div class="stat-icon-bg bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="ti ti-clock text-white fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Invités -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm stat-card info-gradient h-100">
+          <div class="card-body p-4 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-white opacity-75 fs-6 fw-medium d-block mb-1">Invités</span>
+              <h3 class="text-white mb-0 fw-bold">{{ countByStatus('Invité') }}</h3>
+            </div>
+            <div class="stat-icon-bg bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="ti ti-mail text-white fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="col-12 text-center py-5" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-2 mb-0 fs-7">Chargement...</p>
+  </div>
+
+  <!-- Admin Table -->
+  <div class="col-12 mb-5" *ngIf="admins.length > 0 && !loading">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <div>
+            <h5 class="fw-bold text-dark mb-1">Liste des administrateurs</h5>
+            <p class="text-muted mb-0 fs-7">{{ admins.length }} admin(s) enregistré(s)</p>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 text-nowrap">
+            <thead>
+              <tr class="table-header-row text-muted">
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">Administrateur</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">Rôle</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">Statut</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">Date d'ajout</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold text-end" *ngIf="isSuperAdmin">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="table-body-row" *ngFor="let admin of admins">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="admin-bullet rounded-circle"></div>
+                    <div>
+                      <span class="fw-semibold text-dark">{{ admin.name }}</span>
+                      <div class="text-muted fs-7">{{ admin.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge rounded-pill px-2.5 py-1 role-badge"
+                    [class.bg-soft-primary]="admin.role==='Super Admin'"
+                    [class.text-primary]="admin.role==='Super Admin'"
+                    [class.bg-soft-info]="admin.role==='Administrateur'"
+                    [class.text-info]="admin.role==='Administrateur'"
+                    [class.bg-soft-secondary]="admin.role==='Modérateur'"
+                    [class.text-secondary]="admin.role==='Modérateur'">
+                    {{ admin.role }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge rounded-pill px-2.5 py-1"
+                    [class.bg-soft-success]="admin.status==='Actif'"
+                    [class.text-success]="admin.status==='Actif'"
+                    [class.bg-soft-warning]="admin.status==='Inactif'"
+                    [class.text-warning]="admin.status==='Inactif'"
+                    [class.bg-soft-secondary]="admin.status==='Invité'"
+                    [class.text-secondary]="admin.status==='Invité'">
+                    ● {{ admin.status }}
+                  </span>
+                </td>
+                <td><span class="text-muted fs-7">{{ (admin.createdAt | date:'dd/MM/yyyy HH:mm') || '—' }}</span></td>
+                <td class="text-end">
+                  <button class="btn btn-outline-primary btn-sm rounded-circle p-2 border-0 me-1" title="Modifier" *ngIf="isSuperAdmin" (click)="openEditForm(admin)">
+                    <i class="ti ti-edit fs-5"></i>
+                  </button>
+                  <button class="btn btn-outline-success btn-sm rounded-circle p-2 border-0 me-1" title="Accepter l'invitation" *ngIf="isSuperAdmin && admin.status==='Invité' && admin.invitationToken" (click)="acceptInvite(admin)">
+                    <i class="ti ti-user-check fs-5"></i>
+                  </button>
+                  <button class="btn btn-outline-info btn-sm rounded-circle p-2 border-0 me-1" title="Renvoyer l'invitation" *ngIf="isSuperAdmin && admin.status==='Invité'" (click)="resendInvite(admin)">
+                    <i class="ti ti-mail-forward fs-5"></i>
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm rounded-circle p-2 border-0" title="Supprimer" *ngIf="isSuperAdmin" (click)="deleteAdmin(admin)">
+                    <i class="ti ti-trash fs-5"></i>
+                  </button>
+                </td>
+              </tr>
+              <!-- Empty state -->
+              <tr *ngIf="admins.length === 0">
+                <td colspan="5" class="text-center py-5 text-muted">
+                  <div class="py-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted opacity-50 mb-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <p class="mb-0 fw-medium">Aucun administrateur trouvé</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #adminModal let-modal>
+  <div class="card border-0 shadow-sm booking-form-card">
+    <!-- Card Tab Header -->
+    <div class="card-header bg-transparent border-bottom-0 p-0">
+      <ul class="nav nav-tabs nav-fill border-bottom" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link py-3 fw-semibold border-0 active" type="button">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-edit' : 'ti-user-plus'"></i>
+            {{ isEditMode ? "Modifier l'administrateur" : 'Nouvel administrateur' }}
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card-body p-4">
+      <p class="text-muted mb-4 fs-7">{{ isEditMode ? 'Modifiez les informations ci-dessous' : 'Créez un nouveau compte administrateur' }}</p>
+
+      <form (ngSubmit)="saveAdmin()">
+        <div *ngIf="!isEditMode" class="mb-3">
+          <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-user me-1 text-primary"></i>Nom complet</label>
+          <input type="text" class="form-control rounded-3 py-2" [(ngModel)]="formName" name="name" placeholder="Ex: Ahmed Ben Ali" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-mail me-1 text-primary"></i>Adresse email</label>
+          <input type="email" class="form-control rounded-3 py-2" [(ngModel)]="formEmail" name="email" placeholder="email@ecole.tn" required />
+        </div>
+        <div *ngIf="!isEditMode" class="mb-3">
+          <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-lock me-1 text-primary"></i>Mot de passe</label>
+          <input type="password" class="form-control rounded-3 py-2" [(ngModel)]="formPassword" name="password" placeholder="Mot de passe temporaire" required />
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-shield me-1 text-primary"></i>Rôle</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formRole" name="role" [disabled]="!isSuperAdmin">
+              <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+            </select>
+            <small class="text-muted mt-1 d-block fs-7" *ngIf="!isSuperAdmin">
+              <i class="ti ti-lock me-1"></i>Réservé au Super Admin
+            </small>
+          </div>
+          <div class="col-6">
+            <label class="form-label text-dark fw-semibold fs-7"><i class="ti ti-flag me-1 text-primary"></i>Statut</label>
+            <select class="form-select rounded-3 py-2" [(ngModel)]="formStatus" name="status" [disabled]="!isSuperAdmin">
+              <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+            </select>
+            <small class="text-muted mt-1 d-block fs-7" *ngIf="!isSuperAdmin">
+              <i class="ti ti-lock me-1"></i>Réservé au Super Admin
+            </small>
+          </div>
+        </div>
+        <div *ngIf="errorAlert" class="alert alert-danger py-2 mb-3">{{ errorAlert }}</div>
+        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fs-7 fw-semibold" (click)="modal.dismiss()">Annuler</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fs-7 fw-semibold submit-btn shadow-sm" [disabled]="!formName || !formEmail || (!isEditMode && !formPassword)">
+            <i class="ti" [ngClass]="isEditMode ? 'ti-device-floppy' : 'ti-plus'"></i>
+            {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>
