@@ -50,40 +50,21 @@ export default class TypographyComponent implements OnInit {
   }
 
   private mapRoleToApi(role: string): string {
-    if ((role.toLocaleLowerCase()).replace(/\s+/g, "") === 'superadmin' || (role.toLocaleLowerCase()).trim() === 'super_admin') return 'SUPER_ADMIN';
-    if ((role.toLocaleLowerCase()).replace(/\s+/g, "") === 'administrateur' || (role.toLocaleLowerCase()).trim() === 'admin') return 'ADMIN';
+    if (role === 'Super Admin') return 'SUPER_ADMIN';
+    if (role === 'Administrateur') return 'ADMIN';
     return 'USER';
-    
   }
 
   private mapStatusToApi(status: string): string {
-    if ((status.toLocaleLowerCase()).trim() === 'actif') return 'ACTIF';
-    if ((status.toLocaleLowerCase()).trim() === 'inactif') return 'INACTIVE';
+    if (status === 'Actif') return 'ACTIVE';
+    if (status === 'Inactif') return 'INACTIVE';
     return 'INVITED';
-  }
-
-  private formatStatusLabel(status: string | undefined | null): string {
-    const normalized = String(status || '').trim().toLowerCase();
-    if (normalized === 'actif' || normalized === 'active') return 'Actif';
-    if (normalized === 'inactif' || normalized === 'inactive') return 'Inactif';
-    return 'Invité';
-  }
-
-  private normalizeStatusOnLoad(admins: Admin[]): Admin[] {
-    return admins.map(admin => ({
-      ...admin,
-      status: this.formatStatusLabel(admin.status)
-    }));
   }
 
   load() {
     this.loading = true;
     this.adminService.getAll().subscribe({
-      next: data => {
-        this.admins = this.normalizeStatusOnLoad(data);
-        this.loading = false;
-        this.updateRole();
-      },
+      next: data => { this.admins = data; this.loading = false; },
       error: () => { this.errorAlert = 'Erreur de chargement'; this.loading = false; }
     });
   }
@@ -94,7 +75,7 @@ export default class TypographyComponent implements OnInit {
     this.formName = '';
     this.formEmail = '';
     this.formPassword = '';
-    this.formRole = this.isSuperAdmin ? 'SUPER_ADMIN' : 'ADMIN';
+    this.formRole = this.isSuperAdmin ? 'Super Admin' : 'Administrateur';
     this.formStatus = 'Invité';
     this.errorAlert = '';
     this.modalService.open(this.adminModal, { centered: true, size: 'md', windowClass: 'admin-modal' });
@@ -107,7 +88,7 @@ export default class TypographyComponent implements OnInit {
     this.formEmail = admin.email;
     this.formPassword = '';
     this.formRole = admin.role;
-    this.formStatus = this.formatStatusLabel(admin.status);
+    this.formStatus = admin.status;
     this.errorAlert = '';
     this.modalService.open(this.adminModal, { centered: true, size: 'md', windowClass: 'admin-modal' });
   }
@@ -117,9 +98,7 @@ export default class TypographyComponent implements OnInit {
     this.editId = null;
     this.modalService.dismissAll();
   }
-  updateRole(){
-this.currentUserRole = this.admins.filter(a => a.email === this.authService.getUsername())?.[0]?.role || this.currentUserRole;
-}
+
   saveAdmin() {
     if (!this.formName || !this.formEmail) return;
     this.errorAlert = '';
@@ -127,8 +106,8 @@ this.currentUserRole = this.admins.filter(a => a.email === this.authService.getU
     const adminData: Admin = {
       name: this.formName.trim(),
       email: this.formEmail.trim(),
-      role: this.mapRoleToApi(this.formRole),
-      status: this.mapStatusToApi(this.formStatus)
+      role: this.formRole,
+      status: this.formStatus
     };
 
     if (this.isEditMode && this.editId) {
@@ -165,18 +144,18 @@ this.currentUserRole = this.admins.filter(a => a.email === this.authService.getU
   }
 
   deleteAdmin(admin: Admin) {
-    if (!admin.id) return;
+    if (!admin.id || !confirm('Voulez-vous vraiment supprimer ' + admin.name + ' ?')) return;
     this.adminService.delete(admin.id).subscribe({
       next: () => {
         this.successAlert = 'Administrateur supprimé avec succès !';
-      //  this.load();
+        this.load();
       },
-      error: () => {this.successAlert = 'Erreur lors de la suppression';console.log("errrrrrrrrrrrrrrr,error")}
+      error: () => this.successAlert = 'Erreur lors de la suppression'
     });
-   // setTimeout(() => this.successAlert = '', 4000);
+    setTimeout(() => this.successAlert = '', 4000);
   }
 
-  resendInvite(admin: Admin) { ///dfddddddddddddddd
+  resendInvite(admin: Admin) {
     if (!admin.id) return;
     this.adminService.resendInvitation(admin.id).subscribe({
       next: () => {
@@ -188,7 +167,7 @@ this.currentUserRole = this.admins.filter(a => a.email === this.authService.getU
   }
 
   acceptInvite(admin: Admin) {
-    if (admin.invitationToken) { //sdsdsdssssssssssssssss
+    if (admin.invitationToken) {
       this.adminService.acceptInvitation(admin.invitationToken).subscribe({
         next: () => {
           this.successAlert = 'Invitation acceptée pour ' + admin.name;
@@ -201,6 +180,6 @@ this.currentUserRole = this.admins.filter(a => a.email === this.authService.getU
   }
 
   countByStatus(status: string) {
-    return this.admins.filter(a => this.formatStatusLabel(a.status) === status).length;
+    return this.admins.filter(a => a.status === status).length;
   }
 }

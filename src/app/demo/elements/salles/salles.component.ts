@@ -128,7 +128,7 @@ export class SallesComponent implements OnInit {
       const roomName = res.salle?.nom || '';
       const teacherName = (res.enseignant?.prenom || '') + ' ' + (res.enseignant?.nom || '');
       const ms = !term || roomName.toLowerCase().includes(term) || teacherName.toLowerCase().includes(term) || res.className.toLowerCase().includes(term) || res.subject.toLowerCase().includes(term);
-      return ms && (!this.filterRoom || String(res.salle?.id) === String(this.filterRoom)) && (!this.filterTeacher || teacherName === this.filterTeacher) && (!this.filterDate || res.date === this.filterDate);
+      return ms && (!this.filterRoom || res.salle?.id === this.filterRoom) && (!this.filterTeacher || teacherName === this.filterTeacher) && (!this.filterDate || res.date === this.filterDate);
     });
   }
 
@@ -243,7 +243,8 @@ export class SallesComponent implements OnInit {
          const matiere = teacher.matieres?.[0]?.nom || '';
          const request = {
             enseignant: { id: teacher.id },
-            salle: room,
+            salleId: room.id,
+            salleNom: room.nom,
             classe: schoolClass.nom,
             date: this.selectedDate,
             seance: sessionLabel,
@@ -254,10 +255,10 @@ export class SallesComponent implements OnInit {
             const savedReservation = {
               ...request,
               ...created,
-              id: created.id ,
-              salle: created.salle,
+              id: created.id ?? created.id ?? '',
+              salle: created.salle ?? { id: room.id, nom: room.nom },
               enseignant: created.enseignant ?? { id: teacher.id, prenom: teacher.prenom, nom: teacher.nom },
-              className: created.className  ,
+              className: created.className ?? created.className ?? schoolClass.nom,
               session: created.session
             } as any;
             this.reservations.unshift(savedReservation);
