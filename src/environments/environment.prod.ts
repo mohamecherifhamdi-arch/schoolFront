@@ -3,6 +3,6 @@ import packageInfo from '../../package.json';
 export const environment = {
   appVersion: packageInfo.version,
   production: true,
-  apiUrl: 'http://localhost:8080/api',
-  chatbotUrl: 'http://localhost:8080/api/chat'
+  apiUrl: 'http://192.168.49.2:30080/api',
+  chatbotUrl: 'http://192.168.49.2:30080/api/chat'
 };
