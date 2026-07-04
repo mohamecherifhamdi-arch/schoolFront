@@ -116,6 +116,7 @@
                 <th scope="col" class="fs-7 text-uppercase fw-semibold">Matières</th>
                 <th scope="col" class="fs-7 text-uppercase fw-semibold">Email</th>
                 <th scope="col" class="fs-7 text-uppercase fw-semibold">Téléphone</th>
+                <th scope="col" class="fs-7 text-uppercase fw-semibold">Absences</th>
                 <th scope="col" class="fs-7 text-uppercase fw-semibold">Statut</th>
                 <th scope="col" class="fs-7 text-uppercase fw-semibold text-end">Actions</th>
               </tr>
@@ -136,7 +137,11 @@
                 </td>
                 <td><span class="text-muted fs-7">{{ e.email }}</span></td>
                 <td><span class="text-muted fs-7">{{ e.telephone }}</span></td>
-               
+                <td>
+                  <span class="badge bg-light-secondary text-secondary fw-semibold px-3 py-2" placement="top" [ngbTooltip]="getAbsencesTooltip(e)" container="body">
+                    {{ e.absences?.length || 0 }}
+                  </span>
+                </td>
                 <td>
                   <span class="badge rounded-pill px-2.5 py-1"
                     [class.bg-soft-success]="e.statut === 'Actif'"

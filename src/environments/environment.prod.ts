@@ -6,3 +6,4 @@ export const environment = {
   apiUrl: 'http://192.168.49.2:30080/api',
   chatbotUrl: 'http://192.168.49.2:30080/api/chat'
 };
+

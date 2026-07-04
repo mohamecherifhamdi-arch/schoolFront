@@ -82,13 +82,10 @@ export class ParentsComponent implements OnInit {
   closeForm() { this.modalService.dismissAll(); this.isEditMode = false; this.editParentId = ''; }
 
   saveParent() {
-    console.log("Elllllllllllllllllleve",this.formEleves)
     if (!this.formName || !this.formPhone || !this.formAddress || this.formEleves.length === 0) return;
     const apiData: ParentApi = {
       nom: this.formName.trim(), adresse: this.formAddress.trim(), telephone: this.formPhone.trim(),
-      email: this.formEmail.trim(), eleves: this.formEleves
-        .map(id => this.eleves.find(e => e.id?.toString() === id.toString()))
-        .filter((e): e is Eleve => !!e)
+      email: this.formEmail.trim(), eleves: this.formEleves.map(id => ({ id }))
     };
     const currentEditId = this.editParentId;
 
@@ -118,6 +115,7 @@ export class ParentsComponent implements OnInit {
   }
 
   toggleEleve(id: number) {
+    alert("selecteeeed")
     const idx = this.formEleves.indexOf(id);
     if (idx >= 0) this.formEleves.splice(idx, 1);
     else this.formEleves.push(id);

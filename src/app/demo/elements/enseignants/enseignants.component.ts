@@ -140,11 +140,6 @@ export class EnseignantsComponent implements OnInit {
     setTimeout(() => this.successAlert = '', 4000);
   }
 
-  getAbsenceCount(e: Enseignant): number {
-    console.log("Absences for enseignant", e);
-    return Array.isArray(e.absences) ? e.absences.length : 0;
-  }
-
   getAbsencesTooltip(e: Enseignant): string {
     if (!e.absences || e.absences.length === 0) return '';
     return e.absences.map((a: any) =>

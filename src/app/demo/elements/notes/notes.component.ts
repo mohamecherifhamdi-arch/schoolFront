@@ -93,7 +93,7 @@ export class NotesComponent implements OnInit {
       const matiereName = n.matiere && typeof n.matiere === 'object' ? String((n.matiere as any).nom) : String(n.matiere || '');
       if (s && !name.toLowerCase().includes(s) && !matiereName.toLowerCase().includes(s) && !classeName.toLowerCase().includes(s)) return false;
       if (this.selectedEleve && name !== this.selectedEleve) return false;
-      if (this.selectedMatiere && matiereName !== this.selectedMatiere) return false;
+      if (this.selectedMatiere && n.matiere?.code !== this.selectedMatiere) return false;
       if (this.selectedClasse && classeName !== this.selectedClasse) return false;
       return true;
     });

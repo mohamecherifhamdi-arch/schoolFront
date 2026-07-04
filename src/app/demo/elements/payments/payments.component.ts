@@ -72,11 +72,9 @@ export class PaymentsComponent implements OnInit {
   get eleveSummaries(): { name: string; totalAttendu: number; totalPaye: number; reste: number; payments: Payment[] }[] {
     const grouped = new Map<string, Payment[]>();
     for (const p of this.payments) {
-      if(p.eleve){
       const name = typeof p.eleve === 'object' ? `${(p.eleve as any).prenom} ${(p.eleve as any).nom}` : (p.eleve || '');
       if (!grouped.has(name)) grouped.set(name, []);
       grouped.get(name)!.push(p);
-      }
     }
     return Array.from(grouped.entries()).map(([name, list]) => ({
       name,
