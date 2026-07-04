@@ -73,9 +73,12 @@ export class MatieresComponent implements OnInit {
   get filteredMatieres(): Matiere[] {
     const s = this.searchTerm.trim().toLowerCase();
     return this.matieres.filter(m => {
-      if (s && !m.nom?.toLowerCase().includes(s) && !m.code?.toLowerCase().includes(s) && !m.enseignant?.toLowerCase().includes(s)) return false;
+      const teacherName = typeof m.enseignant === 'object'
+        ? `${m.enseignant.prenom || ''} ${m.enseignant.nom || ''}`.trim()
+        : (m.enseignant || '');
+      if (s && !m.nom?.toLowerCase().includes(s) && !m.code?.toLowerCase().includes(s) && !teacherName.toLowerCase().includes(s)) return false;
       if (this.selectedNiveau && m.niveau !== this.selectedNiveau) return false;
-      if (this.selectedEnseignant && m.enseignant !== this.selectedEnseignant) return false;
+      if (this.selectedEnseignant && teacherName !== this.selectedEnseignant) return false;
       return true;
     });
   }
