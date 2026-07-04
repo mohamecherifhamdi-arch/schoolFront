@@ -6,7 +6,7 @@ import { catchError, switchMap, throwError } from 'rxjs';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
-
+  console.log('AuthInterceptor: Token:', token);
   let cloned = req;
   if (token) {
     cloned = req.clone({
@@ -31,6 +31,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           })
         );
       }
+      console.log("eeeeeeeeeeeeeeeeeeeeeeeeerrror")
       return throwError(() => error);
     })
   );

@@ -4,3 +4,4 @@ dist/
 .DS_Store
 Thumbs.db
 .angular/
+ng-serve-*.txt
