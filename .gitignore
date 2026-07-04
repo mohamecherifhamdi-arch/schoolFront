@@ -5,3 +5,4 @@ dist/
 Thumbs.db
 .angular/
 ng-serve-*.txt
+.idea/
